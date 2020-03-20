@@ -12,6 +12,7 @@
     "url": "https://github.com/hezulong1/web-camera/issues"
   },
   "homepage": "https://github.com/hezulong1/web-camera#readme",
+  "repository": "https://github.com/hezulong1/web-camera",
   "main": "dist/index.min.js",
   "module": "dist/index.esm.js",
   "unpkg": "dist/index.min.js",
