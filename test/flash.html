@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>FlashCamera</title>
+  <style>
+    #wrapper {
+      display: inline-block;
+      min-width: 320px;
+      min-height: 240px;
+      background-color: #ccc;
+    }
+
+    #wrapper * {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <p id="wrapper"></p>
+
+  <p>
+    <input type="text" id="type" value="png">
+    <button type="button" id="capture">take a photo</button>
+  </p>
+
+  <script src="./flash.js"></script>
+  <script>
+    var domCamera = document.querySelector('#wrapper');
+    var domButton = document.querySelector('#capture');
+    var domInput  = document.querySelector('#type');
+    
+    domCamera.innerHTML = [
+      '<object id="object" width="320" height="240" data="./assets/jscam_canvas_only.swf" type="application/x-shockwave-flash">',
+      '<param name="movie" value="./assets/jscam_canvas_only.swf" />',
+      '<param name="FlashVars" value="mode=callback&amp;quality=85" />',
+      '<param name="allowScriptAccess" value="always" />',
+      '</object>'  
+    ].join('');
+
+    var domVideo = document.querySelector('#object');
+
+    var camera = new WebCameraFlash({
+      el: domVideo,
+      log: function(){},
+      debug: function(type, string) {
+        console.log(type + ": " + string);
+      },
+      onCapture: function() {
+        webcam.save();
+      },
+      onTick: function(remain) {
+        // console.log(remain);
+      },
+      onLoad: function() {
+        // var cams = webcam.getCameraList();
+        // cams.length && console.log(cams[0]);
+      }
+    });
+    camera.ready();
+
+    domButton.addEventListener('click', function() {
+      var image = document.querySelector('img');
+      if (!image) {
+        image = new Image();
+        document.body.appendChild(image);
+      }
+
+      camera.toBase64(function(dataURL) {
+        image.src = dataURL;
+      }, domInput.value);
+    });
+  </script>
+
+</body>
+</html>

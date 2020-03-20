@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>NativeCamera</title>
+  <style>
+    #wrapper {
+      display: inline-block;
+      min-width: 320px;
+      min-height: 240px;
+      background-color: #ccc;
+    }
+
+    #wrapper * {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <p id="wrapper"></p>
+
+  <p>
+    <input type="text" id="type" value="png">
+    <button type="button" id="capture">take a photo</button>
+  </p>
+
+  <script src="./native.js"></script>
+  <script>
+    var domCamera = document.querySelector('#wrapper');
+    var domButton = document.querySelector('#capture');
+    var domInput  = document.querySelector('#type');
+    
+    domCamera.innerHTML = '<video></video>';
+
+    var domVideo = domCamera.querySelector('video');
+
+    var camera = new WebCameraNative({
+      el: domVideo,
+      width: 600,
+      height: 450,
+      log: function(){}
+    });
+    camera.ready();
+
+    domButton.addEventListener('click', function() {
+      var image = document.querySelector('img');
+      if (!image) {
+        image = new Image();
+        document.body.appendChild(image);
+      }
+
+      image.src = camera.toBase64(domInput.value);
+    });
+  </script>
+
+</body>
+</html>

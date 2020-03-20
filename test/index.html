@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Camera</title>
+  <style>
+    #wrapper {
+      display: inline-block;
+      min-width: 320px;
+      min-height: 240px;
+      background-color: #ccc;
+    }
+
+    #wrapper * {
+      display: inline-block;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+
+  <p id="wrapper"></p>
+
+  <p>
+    <label><input type="radio" name="use" value="auto" id="auto" checked="checked">auto</label>
+    <label><input type="radio" name="use" value="native" id="native">native</label>
+    <label><input type="radio" name="use" value="flash" id="flash">flash</label>
+    <input type="text" id="type" value="png">
+    <button type="button" id="set">set</button>
+    <button type="button" id="capture">take a photo</button>
+  </p>
+
+  <script src="./index.js"></script>
+  <script>
+    var domWrap   = document.querySelector('#wrapper');
+    var domCap    = document.querySelector('#capture');
+    var domSet    = document.querySelector('#set');
+    var domInput  = document.querySelector('#type');
+    var domAuto   = document.querySelector("#auto");
+    var domNative = document.querySelector('#native');
+    var domFlash  = document.querySelector('#flash');
+
+    var config = {
+      el: '#wrapper',
+      width: 600, // flash 模式下失效
+      height: 450, // flash 模式下失效
+      mode: '',
+      swffile: './assets/jscam_canvas_only.swf',
+      debug: function(type, string) {
+        console.log(type + ": " + string);
+      },
+      onCapture: function() {
+        webcam.save();
+      }
+    }
+
+    var init = function() {
+      var use = domAuto.value;
+
+      if (domNative.checked) {
+        use = domNative.value;
+      }
+
+      if (domFlash.checked) {
+        use = domFlash.value;
+      }
+
+      config.mode = use;
+      return new WebCamera(config);
+    }
+
+    var camera = init();
+
+    domSet.addEventListener('click', function() {
+      domWrap.innerHTML = '';
+      var image = document.querySelector('#image');
+      image && image.parentNode.removeChild(image);
+      camera = init();
+    })
+
+    domCap.addEventListener('click', function() {
+      var image = document.querySelector('#image');
+      if (!image) {
+        image = new Image();
+        image.id = 'image';
+        document.body.appendChild(image);
+      }
+      camera.toBase64(function(dataURL) {
+        image.src = dataURL;
+      }, domInput.value);
+    });
+  </script>
+
+</body>
+</html>
