@@ -1,5 +1,5 @@
 {
-  "name": "web-camera",
+  "name": "web-camera.js",
   "version": "0.0.1",
   "scripts": {
     "dev": "rollup -c",
