@@ -5,6 +5,8 @@
 > 现在浏览器基于 `navigator.MediaDevices.getUserMedia` 封装。
 > 不支持 `navigator.MediaDevices.getUserMedia` 浏览器使用第三方组件 [jquery-webcam](https://www.xarg.org/project/jquery-webcam-plugin/)
 
+可见：[Demo](https://blog.hezulong.com/web-camera/test/)
+
 ## 使用
 
 ```javascript
