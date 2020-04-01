@@ -30,6 +30,7 @@
     <input type="text" id="type" value="png">
     <button type="button" id="set">set</button>
     <button type="button" id="capture">take a photo</button>
+    <button type="button" id="stop">close camera</button>
   </p>
 
   <script src="./index.js"></script>
@@ -37,6 +38,7 @@
     var domWrap   = document.querySelector('#wrapper');
     var domCap    = document.querySelector('#capture');
     var domSet    = document.querySelector('#set');
+    var domStop   = document.querySelector('#stop');
     var domInput  = document.querySelector('#type');
     var domAuto   = document.querySelector("#auto");
     var domNative = document.querySelector('#native');
@@ -90,6 +92,10 @@
       camera.toBase64(function(dataURL) {
         image.src = dataURL;
       }, domInput.value);
+    });
+
+    domStop.addEventListener('click', function() {
+      camera.stop();
     });
   </script>
 

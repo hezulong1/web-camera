@@ -1,8 +1,10 @@
 import 'webrtc-adapter/out/adapter';
 import Promise from 'promise-polyfill';
+import { isFunction } from 'u';
 
 export default class {
   constructor(options) {
+    this._stream = null;
     this.element = options.el;
     this.width = options.width;
     this.height = options.height;
@@ -18,6 +20,7 @@ export default class {
         video: { width, height }
       };
       const handleSuccess = stream => {
+        this._stream = stream;
         if ('srcObject' in element) {
           element.srcObject = stream;
         } else {
@@ -47,5 +50,17 @@ export default class {
     const dataURL = canvas.toDataURL(`image/${type}`);
     canvas.remove && canvas.remove();
     return dataURL || '';
+  }
+  stop(callback) {
+    if (this._stream) {
+      this._stream.getAudioTracks().forEach((track) => {
+        track.stop();
+      });
+      this._stream.getVideoTracks().forEach((track) => {
+        track.stop();
+      });
+      this._stream = null;
+    }
+    isFunction(callback) && callback();
   }
 }

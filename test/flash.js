@@ -2513,6 +2513,12 @@ var WebCameraFlash = (function () {
         this.config.onSave = createOnSave(callback, type);
         this.config.capture();
       }
+    }, {
+      key: "stop",
+      value: function stop(callback) {
+        // 尚未找到关闭方法
+        isFunction_1(callback) && callback();
+      }
     }]);
 
     return _default;

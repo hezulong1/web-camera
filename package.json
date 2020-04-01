@@ -1,10 +1,10 @@
 {
   "name": "web-camera.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
-    "dev": "rollup -c",
-    "watch": "rollup -c -w",
-    "build": "rollup -c --environment NODE_ENV:production"
+    "dev": "rollup -c -w",
+    "build": "rollup -c --environment NODE_ENV:production",
+    "build:dev": "rollup -c"
   },
   "author": "hezulong1<https://github.com/hezulong1>",
   "license": "MIT",
@@ -18,8 +18,6 @@
   "unpkg": "dist/index.min.js",
   "devDependencies": {
     "@babel/core": "^7.6.4",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
-    "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
     "@rollup/plugin-alias": "^3.0.1",
     "@rollup/plugin-node-resolve": "^7.1.1",

@@ -110,42 +110,47 @@ export default class {
       ? callback(this._nativeCamera.toBase64(type))
       : this._flashCamera.toBase64(callback, type);
   }
+  stop(callback) {
+    this._nativeCamera && this._nativeCamera.stop(callback);
+    this._flashCamera && this._flashCamera.stop(callback);
+  }
   log(message, type = 'error') {
     const args = [`web-camera ${type}: `];
     Array.isArray(message) ? args.push(...message) : args.push(message);
     !this.config.silent && console && console[type].apply(console, args);
   }
-  file(name = `image-${_.uuid()}`, type = 'png') {
-    if (!_.validFileName(name)) {
-      this.log(`
-        The fileName is invalid.
-        It can't contain '/', '\\', ':', '*', '?', '"', '<', '>', '|'.
-        And It can't start with '.'.
-      `);
-      return;
-    }
+  // file(name = `image-${_.uuid()}`, type = 'png') {
+  //   if (!_.validFileName(name)) {
+  //     this.log(`
+  //       The fileName is invalid.
+  //       It can't contain '/', '\\', ':', '*', '?', '"', '<', '>', '|'.
+  //       And It can't start with '.'.
+  //     `);
+  //     return;
+  //   }
 
-    if (_.isNil(atob) || _.isNil(Uint8Array) || _.isNil(Blob) || _.isNil(File)) {
-      this.log(`
-        The browser is not support Blob.
-        So can't convert to file.
-        You can try a new browser.
-      `);
-      return;
-    }
+  //   if (_.isNil(atob) || _.isNil(Uint8Array) || _.isNil(Blob) || _.isNil(File)) {
+  //     this.log(`
+  //       The browser is not support Blob.
+  //       So can't convert to file.
+  //       You can try a new browser.
+  //     `);
+  //     return;
+  //   }
 
-    const dataURL = this.base64(type);
-    const dataArray = dataURL.split(',');
-    const mime = dataArray[0].match(/:(.*?);/)[1];
-    const blob = atob(dataArray[1]);
+  //   this.toBase64(dataURL => {
+  //     const dataArray = dataURL.split(',');
+  //     const mime = dataArray[0].match(/:(.*?);/)[1];
+  //     const blob = atob(dataArray[1]);
 
-    let length = blob.length;
-    const u8Array = new Uint8Array(length);
-    while (length--) {
-      u8Array[length] = blob.charCodeAt(length);
-    }
+  //     let length = blob.length;
+  //     const u8Array = new Uint8Array(length);
+  //     while (length--) {
+  //       u8Array[length] = blob.charCodeAt(length);
+  //     }
 
-    // const imageFile = new Blob([u8Array], { type: mime });
-    return new File([u8Array], name + type, { type: mime });
-  }
+  //     // const imageFile = new Blob([u8Array], { type: mime });
+  //     return new File([u8Array], name + type, { type: mime });
+  //   });
+  // }
 }

@@ -83,4 +83,8 @@ export default class {
     this.config.onSave = createOnSave(callback, type);
     this.config.capture();
   }
+  stop(callback) {
+    // 尚未找到关闭方法
+    isFunction(callback) && callback();
+  }
 }

@@ -21,23 +21,36 @@ function _createClass(Constructor, protoProps, staticProps) {
 }
 
 function _toConsumableArray(arr) {
-  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
 }
 
 function _arrayWithoutHoles(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-    return arr2;
-  }
+  if (Array.isArray(arr)) return _arrayLikeToArray(arr);
 }
 
 function _iterableToArray(iter) {
-  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+  if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+}
+
+function _unsupportedIterableToArray(o, minLen) {
+  if (!o) return;
+  if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+  var n = Object.prototype.toString.call(o).slice(8, -1);
+  if (n === "Object" && o.constructor) n = o.constructor.name;
+  if (n === "Map" || n === "Set") return Array.from(n);
+  if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+}
+
+function _arrayLikeToArray(arr, len) {
+  if (len == null || len > arr.length) len = arr.length;
+
+  for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+  return arr2;
 }
 
 function _nonIterableSpread() {
-  throw new TypeError("Invalid attempt to spread non-iterable instance");
+  throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -1292,9 +1305,9 @@ module.exports = cloneBuffer;
 });
 
 /** Built-in value references. */
-var Uint8Array$1 = _root.Uint8Array;
+var Uint8Array = _root.Uint8Array;
 
-var _Uint8Array = Uint8Array$1;
+var _Uint8Array = Uint8Array;
 
 /**
  * Creates a clone of `arrayBuffer`.
@@ -2463,10 +2476,6 @@ var querySelector = function querySelector(selector) {
   }
 
   return element;
-};
-
-var validFileName = function validFileName(fileName) {
-  return !isNil_1(fileName) && /^(?!\.)[^\\\/:\*\?"<>\|]{1,255}$/.test(fileName);
 };
 
 var adapter = createCommonjsModule(function (module, exports) {
@@ -8165,6 +8174,7 @@ var _default = /*#__PURE__*/function () {
   function _default(options) {
     _classCallCheck(this, _default);
 
+    this._stream = null;
     this.element = options.el;
     this.width = options.width;
     this.height = options.height;
@@ -8174,6 +8184,8 @@ var _default = /*#__PURE__*/function () {
   _createClass(_default, [{
     key: "ready",
     value: function ready() {
+      var _this = this;
+
       var width = this.width,
           height = this.height,
           element = this.element,
@@ -8190,6 +8202,8 @@ var _default = /*#__PURE__*/function () {
         };
 
         var handleSuccess = function handleSuccess(stream) {
+          _this._stream = stream;
+
           if ('srcObject' in element) {
             element.srcObject = stream;
           } else {
@@ -8223,6 +8237,23 @@ var _default = /*#__PURE__*/function () {
       var dataURL = canvas.toDataURL("image/".concat(type));
       canvas.remove && canvas.remove();
       return dataURL || '';
+    }
+  }, {
+    key: "stop",
+    value: function stop(callback) {
+      if (this._stream) {
+        this._stream.getAudioTracks().forEach(function (track) {
+          track.stop();
+        });
+
+        this._stream.getVideoTracks().forEach(function (track) {
+          track.stop();
+        });
+
+        this._stream = null;
+      }
+
+      isFunction_1(callback) && callback();
     }
   }]);
 
@@ -8325,6 +8356,12 @@ var _default$1 = /*#__PURE__*/function () {
       var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'png';
       this.config.onSave = createOnSave(callback, type);
       this.config.capture();
+    }
+  }, {
+    key: "stop",
+    value: function stop(callback) {
+      // 尚未找到关闭方法
+      isFunction_1(callback) && callback();
     }
   }]);
 
@@ -8449,45 +8486,49 @@ var _default$2 = /*#__PURE__*/function () {
       /^native$/.test(this.config.mode) ? callback(this._nativeCamera.toBase64(type)) : this._flashCamera.toBase64(callback, type);
     }
   }, {
+    key: "stop",
+    value: function stop(callback) {
+      this._nativeCamera && this._nativeCamera.stop(callback);
+      this._flashCamera && this._flashCamera.stop(callback);
+    }
+  }, {
     key: "log",
     value: function log(message) {
       var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'error';
       var args = ["web-camera ".concat(type, ": ")];
       Array.isArray(message) ? args.push.apply(args, _toConsumableArray(message)) : args.push(message);
       !this.config.silent && console && console[type].apply(console, args);
-    }
-  }, {
-    key: "file",
-    value: function file() {
-      var name = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "image-".concat(uuid());
-      var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'png';
+    } // file(name = `image-${_.uuid()}`, type = 'png') {
+    //   if (!_.validFileName(name)) {
+    //     this.log(`
+    //       The fileName is invalid.
+    //       It can't contain '/', '\\', ':', '*', '?', '"', '<', '>', '|'.
+    //       And It can't start with '.'.
+    //     `);
+    //     return;
+    //   }
+    //   if (_.isNil(atob) || _.isNil(Uint8Array) || _.isNil(Blob) || _.isNil(File)) {
+    //     this.log(`
+    //       The browser is not support Blob.
+    //       So can't convert to file.
+    //       You can try a new browser.
+    //     `);
+    //     return;
+    //   }
+    //   this.toBase64(dataURL => {
+    //     const dataArray = dataURL.split(',');
+    //     const mime = dataArray[0].match(/:(.*?);/)[1];
+    //     const blob = atob(dataArray[1]);
+    //     let length = blob.length;
+    //     const u8Array = new Uint8Array(length);
+    //     while (length--) {
+    //       u8Array[length] = blob.charCodeAt(length);
+    //     }
+    //     // const imageFile = new Blob([u8Array], { type: mime });
+    //     return new File([u8Array], name + type, { type: mime });
+    //   });
+    // }
 
-      if (!validFileName(name)) {
-        this.log("\n        The fileName is invalid.\n        It can't contain '/', '\\', ':', '*', '?', '\"', '<', '>', '|'.\n        And It can't start with '.'.\n      ");
-        return;
-      }
-
-      if (isNil_1(atob) || isNil_1(Uint8Array) || isNil_1(Blob) || isNil_1(File)) {
-        this.log("\n        The browser is not support Blob.\n        So can't convert to file.\n        You can try a new browser.\n      ");
-        return;
-      }
-
-      var dataURL = this.base64(type);
-      var dataArray = dataURL.split(',');
-      var mime = dataArray[0].match(/:(.*?);/)[1];
-      var blob = atob(dataArray[1]);
-      var length = blob.length;
-      var u8Array = new Uint8Array(length);
-
-      while (length--) {
-        u8Array[length] = blob.charCodeAt(length);
-      } // const imageFile = new Blob([u8Array], { type: mime });
-
-
-      return new File([u8Array], name + type, {
-        type: mime
-      });
-    }
   }]);
 
   return _default$2;
